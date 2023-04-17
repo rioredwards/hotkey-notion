@@ -5,7 +5,23 @@ const notion = new Client({ auth: process.env.NOTION_KEY });
 const databaseId = process.env.NOTION_DATABASE_ID;
 const database = await notion.databases.retrieve({ database_id: databaseId });
 
-async function addItem(text) {
+class NotionPage {
+  #name;
+  #command;
+  #app;
+  #appColor;
+  #note;
+
+  constructor(name, command, app, appColor, note) {
+    this.#name = name;
+    this.#command = command;
+    this.#app = app;
+    this.#appColor = appColor;
+    this.#note = note;
+  }
+}
+
+async function addItem(name, command, app, appColor, note) {
   try {
     const response = await notion.pages.create({
       parent: { database_id: databaseId },
@@ -14,7 +30,7 @@ async function addItem(text) {
           title: [
             {
               text: {
-                content: text,
+                content: name,
               },
             },
           ],
@@ -23,11 +39,26 @@ async function addItem(text) {
           rich_text: [
             {
               text: {
-                content: "A dark green leafy vegetable",
+                content: command,
               },
             },
           ],
         },
+        App: {
+          select: {
+            name: app,
+            color: appColor,
+          },
+        },
+      },
+      Note: {
+        rich_text: [
+          {
+            text: {
+              content: note,
+            },
+          },
+        ],
       },
     });
     console.log(response);
@@ -56,8 +87,8 @@ async function queryDatabase() {
         },
       ],
     });
-    console.log(response);
-    const parsedEntry = response.results[0];
+    // console.log(response);
+    const parsedEntry = response.results[0].properties.App.select;
     console.log("parsedEntry: ", parsedEntry);
   } catch (error) {
     console.error(error.body);
@@ -66,6 +97,8 @@ async function queryDatabase() {
 
 addItem("Yurts in Big Sur, California");
 // queryDatabase();
+
+// Select: { id: 'KZX{', name: '🦕VSCode', color: 'blue' }
 
 // Reference: url
 // Name: rich_text
