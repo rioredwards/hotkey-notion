@@ -2,7 +2,6 @@
   "name": "hotkey-notion",
   "version": "1.0.0",
   "description": "A command line tool enabling you to save and read your favorite hotkeys from a local Notion database.",
-  "type": "module",
   "main": "dist/index.js",
   "private": false,
   "scripts": {
