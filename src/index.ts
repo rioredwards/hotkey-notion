@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import dotenv from "dotenv";
-import { connectToDatabase } from "./services/server";
-import { getCredentials } from "./commands/setup";
+import { connectToDatabase } from "./services/server.js";
+import { getCredentials } from "./commands/setup.js";
 // import { askForToken } from "./commands/setup";
 
 dotenv.config();
