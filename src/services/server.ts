@@ -11,7 +11,6 @@ export async function connectToDatabase(token: string, databaseId: string) {
     });
     return database;
   } catch (err) {
-    // console.error(err);
     return null;
   }
 }
