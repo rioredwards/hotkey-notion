@@ -1,5 +1,4 @@
 // TODO server calls
-
 import { Client } from "@notionhq/client";
 
 export async function connectToDatabase(token: string, databaseId: string) {

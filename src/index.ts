@@ -1,27 +1,13 @@
 #!/usr/bin/env node
-
 import dotenv from "dotenv";
 import { connectToDatabase } from "./services/server";
+import { getCredentials } from "./commands/setup";
+// import { askForToken } from "./commands/setup";
 
 dotenv.config();
 
 async function main() {
-  let NOTION_TOKEN: string;
-  let NOTION_DATABASE_ID: string;
-
-  // Check if environment variables are set
-  if (process.env.NOTION_TOKEN) {
-    NOTION_TOKEN = process.env.NOTION_TOKEN;
-    console.log("✅ NOTION_TOKEN is set");
-  } else {
-    throw new Error("❌NOTION_TOKEN is NOT set");
-  }
-  if (process.env.NOTION_DATABASE_ID) {
-    NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
-    console.log("✅ NOTION_DATABASE_ID is set");
-  } else {
-    throw new Error("❌ NOTION_TOKEN is NOT set");
-  }
+  let { NOTION_TOKEN, NOTION_DATABASE_ID } = await getCredentials();
 
   // Attempt to connect to database
   const dbSetupResponse = await connectToDatabase(
