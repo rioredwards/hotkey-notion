@@ -1,4 +1,5 @@
 import inquirer from "inquirer";
+import chalk from "chalk";
 
 // TODO setup command
 export async function askForCredential(credName: string) {
@@ -8,7 +9,7 @@ export async function askForCredential(credName: string) {
     const answers = await inquirer.prompt({
       name: "credValue",
       type: "input",
-      message: `enter your ${credName} ->`,
+      message: `enter your ${chalk.red(credName)} ->`,
     });
     if (answers.credValue) {
       credValue = answers.credValue;
