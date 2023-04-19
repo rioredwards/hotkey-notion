@@ -48,8 +48,21 @@ async function main() {
 
   // LIST COMMAND
   spinner(mySpinner, "SPINSTART", "querying database");
-  await queryDatabase(notion, NOTION_DATABASE_ID, "Hello");
-  spinner(mySpinner, "SPINSUCCESS", "success! here are your commands");
+  let requestedCommands: Array<string[]> = [];
+  const { data, error } = await queryDatabase(
+    notion,
+    NOTION_DATABASE_ID,
+    "Hello"
+  );
+
+  if (error) {
+    spinner(mySpinner, "SPINERROR", "error querying database");
+    return 1;
+  } else {
+    requestedCommands = data;
+    spinner(mySpinner, "SPINSUCCESS", "success! here are your commands");
+    console.table(requestedCommands);
+  }
 }
 
 main()

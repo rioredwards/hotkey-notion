@@ -1,29 +1,17 @@
 // TODO list command
 import { Client } from "@notionhq/client";
-import { logger } from "../logger.js";
+import { NotionColor, colorize, notionToChalkColor } from "../logger.js";
 import {
   PageObjectResponse,
   TextRichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints.js";
-
-type SelectColor =
-  | "yellow"
-  | "red"
-  | "green"
-  | "default"
-  | "gray"
-  | "brown"
-  | "orange"
-  | "blue"
-  | "purple"
-  | "pink";
 
 type SelectProperty = {
   type: "select";
   select: {
     id: string;
     name: string;
-    color: SelectColor;
+    color: NotionColor;
   } | null;
   id: string;
 };
@@ -53,6 +41,14 @@ export async function queryDatabase(
           property: "App",
           direction: "descending",
         },
+        {
+          property: "Name",
+          direction: "descending",
+        },
+        {
+          timestamp: "last_edited_time",
+          direction: "descending",
+        },
       ],
     });
 
@@ -63,12 +59,9 @@ export async function queryDatabase(
     }) as PageObjectResponse[];
 
     const parsedPages = fullPages.map((page) => extractPageProperties(page));
-
-    logger("SUCCESS", "success! here is your database: ");
-    console.table(parsedPages);
+    return { data: parsedPages, error: null };
   } catch (error) {
-    console.error(error);
-    logger("ERROR", "error querying database");
+    return { data: null, error: Error };
   }
 }
 
@@ -79,6 +72,14 @@ function extractPageProperties(page: PageObjectResponse) {
 
   const title = titleProperty?.title?.[0]?.plain_text ?? "";
   const name = richTextProperty?.rich_text?.[0]?.plain_text ?? "";
-  const app = selectProperty?.select?.name ?? "";
-  return [app, title, name];
+  const appName = selectProperty?.select?.name ?? "";
+  const appColor: NotionColor = selectProperty?.select?.color ?? "default";
+  const coloredAppName = colorApp(appName, appColor);
+
+  return [coloredAppName, title, name];
+}
+
+function colorApp(app: string, color: NotionColor) {
+  const chalkColor = notionToChalkColor(color);
+  return colorize(chalkColor, app);
 }
