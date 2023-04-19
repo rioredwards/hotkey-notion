@@ -1,38 +1,31 @@
-import inquirer from "inquirer";
-import chalk from "chalk";
 import fs from "fs";
 import path from "path";
-import { Input, LogStatus, getInput, logger } from "../logger.js";
+import { getInput, logger } from "../logger.js";
 
-export enum CredentialType {
-  UPDATE,
-  CREATE,
-}
-
-export async function getCredentials(method: CredentialType) {
+export async function getNotionCredentials(): Promise<{
+  NOTION_TOKEN: string;
+  NOTION_DATABASE_ID: string;
+}> {
   let { NOTION_TOKEN, NOTION_DATABASE_ID } = process.env;
 
-  if (!NOTION_TOKEN || method === CredentialType.UPDATE) {
-    if (!NOTION_TOKEN) {
-      logger(LogStatus.ERROR, "no notion token found");
-    }
-    NOTION_TOKEN = await getInput(Input.TOKEN);
-  }
-  if (!NOTION_DATABASE_ID || method === CredentialType.UPDATE) {
-    if (!NOTION_DATABASE_ID) {
-      logger(LogStatus.ERROR, "no notion database id found");
-    }
-    NOTION_DATABASE_ID = await getInput(Input.DATABASE_ID);
+  while (!NOTION_TOKEN || !NOTION_DATABASE_ID) {
+    if (!NOTION_TOKEN) logger("ERROR", "no token found!");
+    NOTION_TOKEN = await getInput("TOKEN");
+    if (!NOTION_DATABASE_ID) logger("ERROR", "no database id found!");
+    NOTION_DATABASE_ID = await getInput("DATABASE_ID");
   }
 
-  return { NOTION_TOKEN, NOTION_DATABASE_ID };
+  return {
+    NOTION_TOKEN,
+    NOTION_DATABASE_ID,
+  };
 }
 
-export async function saveCredentials(
+export async function saveCreds(
   NOTION_TOKEN: string,
   NOTION_DATABASE_ID: string
 ) {
-  logger(LogStatus.SUCCESS, "saving credentials");
+  logger("SUCCESS", "saving creds");
 
   let envFilePath: string;
   const dir = path.dirname(process.argv[1]);

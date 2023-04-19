@@ -1,44 +1,53 @@
 #!/usr/bin/env node
 import dotenv from "dotenv";
-import { connectToDatabase } from "./services/server.js";
-import {
-  CredentialType,
-  getCredentials,
-  saveCredentials,
-} from "./commands/setup.js";
+import { connectToDatabase, createClient } from "./services/server.js";
+import { getNotionCredentials, saveCreds } from "./commands/setup.js";
 import { createSpinner } from "nanospinner";
 import { GetDatabaseResponse } from "@notionhq/client/build/src/api-endpoints.js";
-import { SpinStatus, logger, spinner } from "./logger.js";
+import { spinner } from "./logger.js";
+import { Client } from "@notionhq/client";
+import { addToDatabase, getUserDatabaseEntry } from "./commands/add.js";
+import { queryDatabase } from "./commands/list.js";
 
 dotenv.config();
 
 async function main() {
-  let { NOTION_TOKEN, NOTION_DATABASE_ID } = await getCredentials(
-    CredentialType.CREATE
-  );
+  let { NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials();
+  let notion: Client | null = null;
   let database: GetDatabaseResponse | null = null;
-  let needToUpdateCredentials = false;
   const mySpinner = createSpinner();
+  let needToUpdateCreds = false;
 
-  // Attempt to connect to database
-  while (!database) {
-    spinner(mySpinner, SpinStatus.SPINSTART, "connecting to database");
+  // Connect to database
+  while (!database || !notion) {
+    spinner(mySpinner, "SPINSTART", "connecting to database");
+    notion = createClient(NOTION_TOKEN);
+    database = await connectToDatabase(notion, NOTION_DATABASE_ID);
 
-    database = await connectToDatabase(NOTION_TOKEN, NOTION_DATABASE_ID);
     if (database) {
-      spinner(mySpinner, SpinStatus.SPINSUCCESS, "connected to database");
+      spinner(mySpinner, "SPINSUCCESS", "connected to database");
     } else {
-      spinner(mySpinner, SpinStatus.SPINERROR, "could not connect to database");
-      needToUpdateCredentials = true;
-      ({ NOTION_TOKEN, NOTION_DATABASE_ID } = await getCredentials(
-        CredentialType.UPDATE
-      ));
+      spinner(mySpinner, "SPINERROR", "could not connect- try again!");
+      needToUpdateCreds = true;
+      ({ NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials());
     }
   }
 
-  if (needToUpdateCredentials) {
-    saveCredentials(NOTION_TOKEN, NOTION_DATABASE_ID);
+  if (needToUpdateCreds) {
+    saveCreds(NOTION_TOKEN!, NOTION_DATABASE_ID!);
+    needToUpdateCreds = false;
   }
+
+  // TODO Check if database has the correct schema
+
+  // TODO Create a new database if needed
+
+  // ADD COMMAND
+  // const entry = await getUserDatabaseEntry();
+  // await addToDatabase(notion, NOTION_DATABASE_ID, entry);
+
+  // LIST COMMAND
+  await queryDatabase(notion, NOTION_DATABASE_ID, "Hello");
 }
 
 main()
