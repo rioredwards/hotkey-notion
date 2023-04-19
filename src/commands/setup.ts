@@ -1,31 +1,24 @@
-import inquirer from "inquirer";
-import chalk from "chalk";
 import fs from "fs";
 import path from "path";
 import { Input, LogType, getInput, logger } from "../logger.js";
 
-export enum CredType {
-  UPDATE,
-  CREATE,
-}
-
-export async function getCreds(method: CredType) {
+export async function getNotionCredentials(): Promise<{
+  NOTION_TOKEN: string;
+  NOTION_DATABASE_ID: string;
+}> {
   let { NOTION_TOKEN, NOTION_DATABASE_ID } = process.env;
 
-  if (!NOTION_TOKEN || method === CredType.UPDATE) {
-    if (!NOTION_TOKEN) {
-      logger(LogType.ERROR, "no notion token found");
-    }
+  while (!NOTION_TOKEN || !NOTION_DATABASE_ID) {
+    if (!NOTION_TOKEN) logger(LogType.ERROR, "no token found!");
     NOTION_TOKEN = await getInput(Input.TOKEN);
-  }
-  if (!NOTION_DATABASE_ID || method === CredType.UPDATE) {
-    if (!NOTION_DATABASE_ID) {
-      logger(LogType.ERROR, "no notion database id found");
-    }
+    if (!NOTION_DATABASE_ID) logger(LogType.ERROR, "no database id found!");
     NOTION_DATABASE_ID = await getInput(Input.DATABASE_ID);
   }
 
-  return { NOTION_TOKEN, NOTION_DATABASE_ID };
+  return {
+    NOTION_TOKEN,
+    NOTION_DATABASE_ID,
+  };
 }
 
 export async function saveCreds(
