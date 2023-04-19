@@ -43,11 +43,13 @@ async function main() {
   // TODO Create a new database if needed
 
   // ADD COMMAND
-  const entry = await getUserDatabaseEntry();
-  await addToDatabase(notion, NOTION_DATABASE_ID, entry);
+  // const entry = await getUserDatabaseEntry();
+  // await addToDatabase(notion, NOTION_DATABASE_ID, entry);
 
   // LIST COMMAND
+  spinner(mySpinner, "SPINSTART", "querying database");
   await queryDatabase(notion, NOTION_DATABASE_ID, "Hello");
+  spinner(mySpinner, "SPINSUCCESS", "success! here are your commands");
 }
 
 main()
