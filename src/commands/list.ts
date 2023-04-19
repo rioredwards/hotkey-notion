@@ -32,18 +32,7 @@ export async function queryDatabase(
       ],
     });
 
-    const results = (response.results as PageObjectResponse[])
-      .slice(0)
-      .map((page) => {
-        const name =
-          (page.properties.Name as TextResponse | undefined)?.rich_text?.[0]
-            ?.plain_text ?? "";
-        const command =
-          (page.properties.Command as TitleResponse | undefined)?.title?.[0]
-            ?.plain_text ?? "";
-
-        return [name, command];
-      });
+    const results = (response.results as PageObjectResponse[]).map(parsePage);
 
     // const results = (response.results as PageObjectResponse[]).slice(25, 1);
     logger("SUCCESS", "success! here is your database: ");
@@ -52,6 +41,17 @@ export async function queryDatabase(
     console.error(error);
     logger("ERROR", "error querying database");
   }
+}
+
+function parsePage(page: PageObjectResponse) {
+  const name =
+    (page.properties.Name as TextResponse | undefined)?.rich_text?.[0]
+      ?.plain_text ?? "";
+  const command =
+    (page.properties.Command as TitleResponse | undefined)?.title?.[0]
+      ?.plain_text ?? "";
+
+  return [name, command];
 }
 
 [
