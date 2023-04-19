@@ -1,8 +1,8 @@
-import chalk from "chalk";
+import chalk, { ChalkInstance } from "chalk";
 import inquirer, { QuestionCollection } from "inquirer";
 import { Spinner } from "nanospinner";
 
-export enum LogStatus {
+export enum LogType {
   INFO,
   WARN,
   ERROR,
@@ -10,7 +10,7 @@ export enum LogStatus {
   PROMPT,
 }
 
-export enum SpinStatus {
+export enum SpinType {
   SPINSTART,
   SPINERROR,
   SPINSUCCESS,
@@ -21,22 +21,22 @@ export enum Input {
   DATABASE_ID,
 }
 
-const chalkColors = {
-  [LogStatus.INFO]: chalk.white,
-  [LogStatus.WARN]: chalk.yellow,
-  [LogStatus.ERROR]: chalk.red,
-  [LogStatus.SUCCESS]: chalk.green,
-};
+enum Colors {
+  WHITE = "white",
+  YELLOW = "yellow",
+  RED = "red",
+  GREEN = "green",
+}
 
 const statusIcons = {
-  [LogStatus.INFO]: chalkColors[LogStatus.INFO]("➤"),
-  [LogStatus.WARN]: chalkColors[LogStatus.WARN]("⚠"),
-  [LogStatus.ERROR]: chalkColors[LogStatus.ERROR]("✖"),
-  [LogStatus.SUCCESS]: chalkColors[LogStatus.SUCCESS]("✔"),
-  [LogStatus.PROMPT]: chalkColors[LogStatus.WARN]("?"),
-  [SpinStatus.SPINSTART]: chalkColors[LogStatus.INFO]("➤"),
-  [SpinStatus.SPINERROR]: chalkColors[LogStatus.ERROR]("✖"),
-  [SpinStatus.SPINSUCCESS]: chalkColors[LogStatus.SUCCESS]("✔"),
+  [LogType.INFO]: chalk[Colors.WHITE]("➤"),
+  [LogType.WARN]: chalk[Colors.YELLOW]("⚠"),
+  [LogType.ERROR]: chalk[Colors.RED]("✖"),
+  [LogType.SUCCESS]: chalk[Colors.GREEN]("✔"),
+  [LogType.PROMPT]: chalk[Colors.YELLOW]("?"),
+  [SpinType.SPINSTART]: chalk[Colors.WHITE]("➤"),
+  [SpinType.SPINERROR]: chalk[Colors.RED]("✖"),
+  [SpinType.SPINSUCCESS]: chalk[Colors.GREEN]("✔"),
 };
 
 interface InputOptions {
@@ -54,7 +54,7 @@ const inputDisplayNames: InputDisplayNames = {
 
 function createPromptMsg(input: Input) {
   // prettier-ignore
-  return `${statusIcons[LogStatus.PROMPT]} Enter your ${chalkColors[LogStatus.WARN](inputDisplayNames[input])} -> `;
+  return `${statusIcons[LogType.PROMPT]} Enter your ${chalk[Colors.YELLOW](inputDisplayNames[input])} -> `;
 }
 
 interface InputValidations {
@@ -90,24 +90,20 @@ const inputOptions: InputOptions = {
   },
 };
 
-export function logger(status: LogStatus, message: string) {
+export function logger(status: LogType, message: string) {
   const icon = statusIcons[status];
   console.log(`${icon} ${message}`);
 }
 
-export function spinner(
-  mySpinner: Spinner,
-  status: SpinStatus,
-  message: string
-) {
+export function spinner(mySpinner: Spinner, status: SpinType, message: string) {
   switch (status) {
-    case SpinStatus.SPINSTART:
+    case SpinType.SPINSTART:
       mySpinner.start({ text: message });
       break;
-    case SpinStatus.SPINERROR:
+    case SpinType.SPINERROR:
       mySpinner.error({ text: message });
       break;
-    case SpinStatus.SPINSUCCESS:
+    case SpinType.SPINSUCCESS:
       mySpinner.success({ text: message });
       break;
   }
@@ -121,7 +117,7 @@ export async function getInput(input: Input) {
     if (answers.value && inputValidations[input].check(answers.value)) {
       value = answers.value;
     } else {
-      logger(LogStatus.ERROR, inputValidations[input].hint);
+      logger(LogType.ERROR, inputValidations[input].hint);
     }
   } while (!value);
 
