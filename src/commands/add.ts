@@ -21,7 +21,7 @@ class DatabaseEntry implements DatabaseEntry {
   }
 }
 
-export async function getDatabaseEntry(): Promise<DatabaseEntry> {
+export async function getUserDatabaseEntry(): Promise<DatabaseEntry> {
   let entry = new DatabaseEntry();
 
   entry.name = await getInput("NAME_PARAM");

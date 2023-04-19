@@ -6,7 +6,8 @@ import { createSpinner } from "nanospinner";
 import { GetDatabaseResponse } from "@notionhq/client/build/src/api-endpoints.js";
 import { spinner } from "./logger.js";
 import { Client } from "@notionhq/client";
-import { addToDatabase, getDatabaseEntry } from "./commands/add.js";
+import { addToDatabase, getUserDatabaseEntry } from "./commands/add.js";
+import { queryDatabase } from "./commands/list.js";
 
 dotenv.config();
 
@@ -41,11 +42,12 @@ async function main() {
 
   // TODO Create a new database if needed
 
-  // TODO Get user input
-  const entry = await getDatabaseEntry();
+  // ADD COMMAND
+  // const entry = await getUserDatabaseEntry();
+  // await addToDatabase(notion, NOTION_DATABASE_ID, entry);
 
-  // TODO Add new entry to database
-  await addToDatabase(notion, NOTION_DATABASE_ID, entry);
+  // LIST COMMAND
+  await queryDatabase(notion, NOTION_DATABASE_ID, "Hello");
 }
 
 main()
