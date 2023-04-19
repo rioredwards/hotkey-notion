@@ -1,4 +1,3 @@
-// TODO server calls
 import { Client } from "@notionhq/client";
 
 export function createClient(token: string) {

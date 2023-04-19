@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { Input, LogType, getInput, logger } from "../logger.js";
+import { getInput, logger } from "../logger.js";
 
 export async function getNotionCredentials(): Promise<{
   NOTION_TOKEN: string;
@@ -9,10 +9,10 @@ export async function getNotionCredentials(): Promise<{
   let { NOTION_TOKEN, NOTION_DATABASE_ID } = process.env;
 
   while (!NOTION_TOKEN || !NOTION_DATABASE_ID) {
-    if (!NOTION_TOKEN) logger(LogType.ERROR, "no token found!");
-    NOTION_TOKEN = await getInput(Input.TOKEN);
-    if (!NOTION_DATABASE_ID) logger(LogType.ERROR, "no database id found!");
-    NOTION_DATABASE_ID = await getInput(Input.DATABASE_ID);
+    if (!NOTION_TOKEN) logger("ERROR", "no token found!");
+    NOTION_TOKEN = await getInput("TOKEN");
+    if (!NOTION_DATABASE_ID) logger("ERROR", "no database id found!");
+    NOTION_DATABASE_ID = await getInput("DATABASE_ID");
   }
 
   return {
@@ -25,7 +25,7 @@ export async function saveCreds(
   NOTION_TOKEN: string,
   NOTION_DATABASE_ID: string
 ) {
-  logger(LogType.SUCCESS, "saving creds");
+  logger("SUCCESS", "saving creds");
 
   let envFilePath: string;
   const dir = path.dirname(process.argv[1]);

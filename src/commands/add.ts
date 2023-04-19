@@ -1,7 +1,7 @@
 // TODO add command
 
 import { Client } from "@notionhq/client";
-import { Input, LogType, getInput, logger } from "../logger.js";
+import { getInput, logger } from "../logger.js";
 
 interface dynamicObject {
   [key: string]: any;
@@ -24,8 +24,8 @@ class DatabaseEntry implements DatabaseEntry {
 export async function getDatabaseEntry(): Promise<DatabaseEntry> {
   let entry = new DatabaseEntry();
 
-  entry.name = await getInput(Input.NAME_PARAM);
-  entry.command = await getInput(Input.COMMAND_PARAM);
+  entry.name = await getInput("NAME_PARAM");
+  entry.command = await getInput("COMMAND_PARAM");
 
   return entry;
 }
@@ -43,7 +43,7 @@ export async function addToDatabase(
           title: [
             {
               text: {
-                content: entry.name,
+                content: entry.command,
               },
             },
           ],
@@ -52,7 +52,7 @@ export async function addToDatabase(
           rich_text: [
             {
               text: {
-                content: entry.command,
+                content: entry.name,
               },
             },
           ],
@@ -60,8 +60,8 @@ export async function addToDatabase(
       },
     });
     // console.log(response);
-    logger(LogType.SUCCESS, "success! entry added to database");
+    logger("SUCCESS", "success! entry added to database");
   } catch (error) {
-    logger(LogType.ERROR, "error adding entry to database");
+    logger("ERROR", "error adding entry to database");
   }
 }

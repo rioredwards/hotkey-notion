@@ -3,11 +3,8 @@ import dotenv from "dotenv";
 import { connectToDatabase, createClient } from "./services/server.js";
 import { getNotionCredentials, saveCreds } from "./commands/setup.js";
 import { createSpinner } from "nanospinner";
-import {
-  GetDatabaseResponse,
-  getDatabase,
-} from "@notionhq/client/build/src/api-endpoints.js";
-import { SpinType, spinner } from "./logger.js";
+import { GetDatabaseResponse } from "@notionhq/client/build/src/api-endpoints.js";
+import { spinner } from "./logger.js";
 import { Client } from "@notionhq/client";
 import { addToDatabase, getDatabaseEntry } from "./commands/add.js";
 
@@ -22,14 +19,14 @@ async function main() {
 
   // Connect to database
   while (!database || !notion) {
-    spinner(mySpinner, SpinType.SPINSTART, "connecting to database");
+    spinner(mySpinner, "SPINSTART", "connecting to database");
     notion = createClient(NOTION_TOKEN);
     database = await connectToDatabase(notion, NOTION_DATABASE_ID);
 
     if (database) {
-      spinner(mySpinner, SpinType.SPINSUCCESS, "connected to database");
+      spinner(mySpinner, "SPINSUCCESS", "connected to database");
     } else {
-      spinner(mySpinner, SpinType.SPINERROR, "could not connect- try again!");
+      spinner(mySpinner, "SPINERROR", "could not connect- try again!");
       needToUpdateCreds = true;
       ({ NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials());
     }

@@ -1,116 +1,89 @@
-import chalk, { ChalkInstance } from "chalk";
+import chalk from "chalk";
 import inquirer, { QuestionCollection } from "inquirer";
 import { Spinner } from "nanospinner";
 
-export enum LogType {
-  INFO,
-  WARN,
-  ERROR,
-  SUCCESS,
-  PROMPT,
-}
-
-export enum SpinType {
-  SPINSTART,
-  SPINERROR,
-  SPINSUCCESS,
-}
-
-export enum Input {
-  TOKEN,
-  DATABASE_ID,
-  COMMAND_PARAM,
-  NAME_PARAM,
-}
-
-enum Colors {
-  WHITE = "white",
-  YELLOW = "yellow",
-  RED = "red",
-  GREEN = "green",
-}
+export type LogType = "INFO" | "WARN" | "ERROR" | "SUCCESS" | "PROMPT";
+export type SpinType = "SPINSTART" | "SPINERROR" | "SPINSUCCESS";
+export type Input = "TOKEN" | "DATABASE_ID" | "COMMAND_PARAM" | "NAME_PARAM";
+type Colors = "white" | "yellow" | "red" | "green";
 
 const statusIcons = {
-  [LogType.INFO]: chalk[Colors.WHITE]("➤"),
-  [LogType.WARN]: chalk[Colors.YELLOW]("⚠"),
-  [LogType.ERROR]: chalk[Colors.RED]("✖"),
-  [LogType.SUCCESS]: chalk[Colors.GREEN]("✔"),
-  [LogType.PROMPT]: chalk[Colors.YELLOW]("?"),
-  [SpinType.SPINSTART]: chalk[Colors.WHITE]("➤"),
-  [SpinType.SPINERROR]: chalk[Colors.RED]("✖"),
-  [SpinType.SPINSUCCESS]: chalk[Colors.GREEN]("✔"),
+  INFO: chalk.white("➤"),
+  WARN: chalk.yellow("⚠"),
+  ERROR: chalk.red("✖"),
+  SUCCESS: chalk.green("✔"),
+  PROMPT: chalk.yellow("?"),
+  SPIN_START: chalk.yellow("⠋"),
+  SPIN_ERROR: chalk.red("✖"),
+  SPIN_SUCCESS: chalk.green("✔"),
 };
 
-interface InputOptions {
-  [key: number]: QuestionCollection;
-}
-
-interface InputDisplayNames {
-  [key: number]: string;
-}
-
-const inputDisplayNames: InputDisplayNames = {
-  [Input.TOKEN]: "notion token",
-  [Input.DATABASE_ID]: "notion database id",
-  [Input.COMMAND_PARAM]: "command",
-  [Input.NAME_PARAM]: "name",
+const inputDisplayNames = {
+  TOKEN: "notion token",
+  DATABASE_ID: "notion database id",
+  COMMAND_PARAM: "command",
+  NAME_PARAM: "name",
 };
 
 function createPromptMsg(input: Input) {
   // prettier-ignore
-  return `${statusIcons[LogType.PROMPT]} Enter your ${chalk[Colors.YELLOW](inputDisplayNames[input])} -> `;
+  return `${statusIcons.PROMPT} Enter your ${chalk.yellow(inputDisplayNames[input])} -> `;
 }
 
 interface InputValidations {
-  [key: number]: {
+  [key: string]: {
     check: (input: string) => boolean;
     hint: string;
   };
 }
 
 const inputValidations: InputValidations = {
-  [Input.TOKEN]: {
+  TOKEN: {
     check: (input: string) => input.length === 50,
     hint: "token should be 50 characters long",
   },
-  [Input.DATABASE_ID]: {
+  DATABASE_ID: {
     check: (input: string) => input.length === 32,
     hint: "database id should be 32 characters long",
   },
-  [Input.COMMAND_PARAM]: {
+  COMMAND_PARAM: {
     check: (input: string) => input.length > 0,
     hint: "command cannot be empty",
   },
-  [Input.NAME_PARAM]: {
+  NAME_PARAM: {
     check: (input: string) => input.length > 0,
     hint: "name cannot be empty",
   },
 };
 
+interface InputOptions {
+  [key: string]: QuestionCollection;
+}
+
 const inputOptions: InputOptions = {
-  [Input.TOKEN]: {
+  TOKEN: {
     prefix: "",
     type: "password",
     name: "value",
-    message: createPromptMsg(Input.TOKEN),
+    message: createPromptMsg("TOKEN"),
   },
-  [Input.DATABASE_ID]: {
+  DATABASE_ID: {
     prefix: "",
     type: "password",
     name: "value",
-    message: createPromptMsg(Input.DATABASE_ID),
+    message: createPromptMsg("DATABASE_ID"),
   },
-  [Input.COMMAND_PARAM]: {
+  COMMAND_PARAM: {
     prefix: "",
     type: "input",
     name: "value",
-    message: createPromptMsg(Input.COMMAND_PARAM),
+    message: createPromptMsg("COMMAND_PARAM"),
   },
-  [Input.NAME_PARAM]: {
+  NAME_PARAM: {
     prefix: "",
     type: "input",
     name: "value",
-    message: createPromptMsg(Input.NAME_PARAM),
+    message: createPromptMsg("NAME_PARAM"),
   },
 };
 
@@ -121,13 +94,13 @@ export function logger(status: LogType, message: string) {
 
 export function spinner(mySpinner: Spinner, status: SpinType, message: string) {
   switch (status) {
-    case SpinType.SPINSTART:
+    case "SPINSTART":
       mySpinner.start({ text: message });
       break;
-    case SpinType.SPINERROR:
+    case "SPINERROR":
       mySpinner.error({ text: message });
       break;
-    case SpinType.SPINSUCCESS:
+    case "SPINSUCCESS":
       mySpinner.success({ text: message });
       break;
   }
@@ -141,7 +114,7 @@ export async function getInput(input: Input) {
     if (answers.value && inputValidations[input].check(answers.value)) {
       value = answers.value;
     } else {
-      logger(LogType.ERROR, inputValidations[input].hint);
+      logger("ERROR", inputValidations[input].hint);
     }
   } while (!value);
 
