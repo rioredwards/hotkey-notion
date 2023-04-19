@@ -1,30 +1,43 @@
 #!/usr/bin/env node
 import dotenv from "dotenv";
 import { connectToDatabase } from "./services/server.js";
-import { askForCredential, getCredentials } from "./commands/setup.js";
+import {
+  CredentialType,
+  getCredentials,
+  saveCredentials,
+} from "./commands/setup.js";
 import { createSpinner } from "nanospinner";
 import { GetDatabaseResponse } from "@notionhq/client/build/src/api-endpoints.js";
+import { SpinStatus, logger, spinner } from "./logger.js";
 
 dotenv.config();
 
 async function main() {
-  let { NOTION_TOKEN, NOTION_DATABASE_ID } = await getCredentials();
+  let { NOTION_TOKEN, NOTION_DATABASE_ID } = await getCredentials(
+    CredentialType.CREATE
+  );
   let database: GetDatabaseResponse | null = null;
+  let needToUpdateCredentials = false;
+  const mySpinner = createSpinner();
 
   // Attempt to connect to database
   while (!database) {
-    const spinner = createSpinner(
-      "Connecting to your notion database...\n"
-    ).start();
+    spinner(mySpinner, SpinStatus.SPINSTART, "connecting to database");
 
     database = await connectToDatabase(NOTION_TOKEN, NOTION_DATABASE_ID);
     if (database) {
-      spinner.success({ text: "Connected to database" });
+      spinner(mySpinner, SpinStatus.SPINSUCCESS, "connected to database");
     } else {
-      spinner.error({ text: "Could not connect to database" });
-      NOTION_DATABASE_ID = await askForCredential("notion database id");
-      NOTION_TOKEN = await askForCredential("notion token");
+      spinner(mySpinner, SpinStatus.SPINERROR, "could not connect to database");
+      needToUpdateCredentials = true;
+      ({ NOTION_TOKEN, NOTION_DATABASE_ID } = await getCredentials(
+        CredentialType.UPDATE
+      ));
     }
+  }
+
+  if (needToUpdateCredentials) {
+    saveCredentials(NOTION_TOKEN, NOTION_DATABASE_ID);
   }
 }
 

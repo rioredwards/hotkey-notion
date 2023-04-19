@@ -1,37 +1,49 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
+import fs from "fs";
+import path from "path";
+import { Input, LogStatus, getInput, logger } from "../logger.js";
 
-// TODO setup command
-export async function askForCredential(credName: string) {
-  let credValue: string | undefined;
-
-  do {
-    const answers = await inquirer.prompt({
-      name: "credValue",
-      type: "input",
-      message: `enter your ${chalk.red(credName)} ->`,
-    });
-    if (answers.credValue) {
-      credValue = answers.credValue;
-    } else {
-      console.log("❌ invalid entry, please try again");
-    }
-  } while (!credValue);
-
-  return credValue;
+export enum CredentialType {
+  UPDATE,
+  CREATE,
 }
 
-export async function getCredentials() {
+export async function getCredentials(method: CredentialType) {
   let { NOTION_TOKEN, NOTION_DATABASE_ID } = process.env;
 
-  if (!NOTION_TOKEN) {
-    console.log("❌ no notion token found");
-    NOTION_TOKEN = await askForCredential("notion token");
+  if (!NOTION_TOKEN || method === CredentialType.UPDATE) {
+    if (!NOTION_TOKEN) {
+      logger(LogStatus.ERROR, "no notion token found");
+    }
+    NOTION_TOKEN = await getInput(Input.TOKEN);
   }
-  if (!NOTION_DATABASE_ID) {
-    console.log("❌ no notion database id found");
-    NOTION_DATABASE_ID = await askForCredential("notion database id");
+  if (!NOTION_DATABASE_ID || method === CredentialType.UPDATE) {
+    if (!NOTION_DATABASE_ID) {
+      logger(LogStatus.ERROR, "no notion database id found");
+    }
+    NOTION_DATABASE_ID = await getInput(Input.DATABASE_ID);
   }
-  // TODO save to .env
+
   return { NOTION_TOKEN, NOTION_DATABASE_ID };
+}
+
+export async function saveCredentials(
+  NOTION_TOKEN: string,
+  NOTION_DATABASE_ID: string
+) {
+  logger(LogStatus.SUCCESS, "saving credentials");
+
+  let envFilePath: string;
+  const dir = path.dirname(process.argv[1]);
+  let envFileContent = `NOTION_TOKEN=${NOTION_TOKEN}\nNOTION_DATABASE_ID=${NOTION_DATABASE_ID}`;
+
+  if (process.env.NODE_ENV === "development") {
+    envFilePath = path.join(dir, "../", ".env");
+    envFileContent += `\nNODE_ENV=development`;
+  } else {
+    envFilePath = path.join(dir, ".env");
+  }
+
+  fs.writeFileSync(envFilePath, envFileContent);
 }
