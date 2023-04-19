@@ -19,6 +19,8 @@ export enum SpinType {
 export enum Input {
   TOKEN,
   DATABASE_ID,
+  COMMAND_PARAM,
+  NAME_PARAM,
 }
 
 enum Colors {
@@ -50,6 +52,8 @@ interface InputDisplayNames {
 const inputDisplayNames: InputDisplayNames = {
   [Input.TOKEN]: "notion token",
   [Input.DATABASE_ID]: "notion database id",
+  [Input.COMMAND_PARAM]: "command",
+  [Input.NAME_PARAM]: "name",
 };
 
 function createPromptMsg(input: Input) {
@@ -73,6 +77,14 @@ const inputValidations: InputValidations = {
     check: (input: string) => input.length === 32,
     hint: "database id should be 32 characters long",
   },
+  [Input.COMMAND_PARAM]: {
+    check: (input: string) => input.length > 0,
+    hint: "command cannot be empty",
+  },
+  [Input.NAME_PARAM]: {
+    check: (input: string) => input.length > 0,
+    hint: "name cannot be empty",
+  },
 };
 
 const inputOptions: InputOptions = {
@@ -87,6 +99,18 @@ const inputOptions: InputOptions = {
     type: "password",
     name: "value",
     message: createPromptMsg(Input.DATABASE_ID),
+  },
+  [Input.COMMAND_PARAM]: {
+    prefix: "",
+    type: "input",
+    name: "value",
+    message: createPromptMsg(Input.COMMAND_PARAM),
+  },
+  [Input.NAME_PARAM]: {
+    prefix: "",
+    type: "input",
+    name: "value",
+    message: createPromptMsg(Input.NAME_PARAM),
   },
 };
 

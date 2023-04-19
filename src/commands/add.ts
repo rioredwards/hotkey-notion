@@ -1,13 +1,39 @@
 // TODO add command
 
 import { Client } from "@notionhq/client";
-import { LogType, logger } from "../logger.js";
+import { Input, LogType, getInput, logger } from "../logger.js";
+
+interface dynamicObject {
+  [key: string]: any;
+}
+
+interface DatabaseEntry extends dynamicObject {
+  name: string;
+  command: string;
+}
+
+class DatabaseEntry implements DatabaseEntry {
+  name: string;
+  command: string;
+  constructor(name: string = "", command: string = "") {
+    this.name = name;
+    this.command = command;
+  }
+}
+
+export async function getDatabaseEntry(): Promise<DatabaseEntry> {
+  let entry = new DatabaseEntry();
+
+  entry.name = await getInput(Input.NAME_PARAM);
+  entry.command = await getInput(Input.COMMAND_PARAM);
+
+  return entry;
+}
 
 export async function addToDatabase(
   notion: Client,
   databaseId: string,
-  name: string,
-  command: string
+  entry: DatabaseEntry
 ) {
   try {
     const response = await notion.pages.create({
@@ -17,7 +43,7 @@ export async function addToDatabase(
           title: [
             {
               text: {
-                content: name,
+                content: entry.name,
               },
             },
           ],
@@ -26,7 +52,7 @@ export async function addToDatabase(
           rich_text: [
             {
               text: {
-                content: command,
+                content: entry.command,
               },
             },
           ],

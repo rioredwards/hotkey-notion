@@ -3,17 +3,15 @@ import dotenv from "dotenv";
 import { connectToDatabase, createClient } from "./services/server.js";
 import { getNotionCredentials, saveCreds } from "./commands/setup.js";
 import { createSpinner } from "nanospinner";
-import { GetDatabaseResponse } from "@notionhq/client/build/src/api-endpoints.js";
+import {
+  GetDatabaseResponse,
+  getDatabase,
+} from "@notionhq/client/build/src/api-endpoints.js";
 import { SpinType, spinner } from "./logger.js";
 import { Client } from "@notionhq/client";
-import { addToDatabase } from "./commands/add.js";
+import { addToDatabase, getDatabaseEntry } from "./commands/add.js";
 
 dotenv.config();
-
-interface DatabaseEntry {
-  name: string;
-  command: string;
-}
 
 async function main() {
   let { NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials();
@@ -46,13 +44,11 @@ async function main() {
 
   // TODO Create a new database if needed
 
+  // TODO Get user input
+  const entry = await getDatabaseEntry();
+
   // TODO Add new entry to database
-  await addToDatabase(
-    notion,
-    NOTION_DATABASE_ID,
-    "Test Name  😎",
-    "Test Command 🔥"
-  );
+  await addToDatabase(notion, NOTION_DATABASE_ID, entry);
 }
 
 main()
