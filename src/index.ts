@@ -12,7 +12,7 @@ import { queryDatabase } from "./commands/list.js";
 dotenv.config();
 
 async function main() {
-  let { NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials();
+  let { NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials(false);
   let notion: Client | null = null;
   let database: GetDatabaseResponse | null = null;
   const mySpinner = createSpinner();
@@ -29,7 +29,7 @@ async function main() {
     } else {
       spinner(mySpinner, "SPINERROR", "could not connect- try again!");
       needToUpdateCreds = true;
-      ({ NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials());
+      ({ NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials(true));
     }
   }
 
@@ -43,8 +43,8 @@ async function main() {
   // TODO Create a new database if needed
 
   // ADD COMMAND
-  // const entry = await getUserDatabaseEntry();
-  // await addToDatabase(notion, NOTION_DATABASE_ID, entry);
+  const entry = await getUserDatabaseEntry();
+  await addToDatabase(notion, NOTION_DATABASE_ID, entry);
 
   // LIST COMMAND
   await queryDatabase(notion, NOTION_DATABASE_ID, "Hello");

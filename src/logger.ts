@@ -22,7 +22,7 @@ const inputDisplayNames = {
   TOKEN: "notion token",
   DATABASE_ID: "notion database id",
   COMMAND_PARAM: "command",
-  NAME_PARAM: "name",
+  NAME_PARAM: "command name",
 };
 
 function createPromptMsg(input: Input) {
