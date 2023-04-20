@@ -34,9 +34,6 @@ type ChalkColor =
   | "red"
   | "gray";
 
-const regexEmoji =
-  /[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\u{1F9B0}-\u{1F9B3}]/u;
-
 const statusIcons = {
   INFO: colorize("white", "➤"),
   WARN: colorize("yellow", "⚠"),
@@ -155,6 +152,12 @@ export function logTable(table: string[][]) {
 }
 
 export function spinner(mySpinner: Spinner, status: SpinType, message: string) {
+  mySpinner.update({
+    stream: process.stdout,
+    frames: ["◡", "⊙", "◠"],
+    interval: 100,
+  });
+
   switch (status) {
     case "SPINSTART":
       mySpinner.start({ text: message });

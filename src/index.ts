@@ -10,6 +10,7 @@ import { addToDatabase, getUserDatabaseEntry } from "./commands/add.js";
 import { queryDatabase } from "./commands/list.js";
 
 dotenv.config();
+const sleep = (ms = 1000) => new Promise((r) => setTimeout(r, ms));
 
 async function main() {
   let { NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials(false);
@@ -23,11 +24,11 @@ async function main() {
     spinner(mySpinner, "SPINSTART", "connecting to database");
     notion = createClient(NOTION_TOKEN);
     database = await connectToDatabase(notion, NOTION_DATABASE_ID);
-
+    await sleep();
     if (database) {
       spinner(mySpinner, "SPINSUCCESS", "connected to database");
     } else {
-      spinner(mySpinner, "SPINERROR", "could not connect- try again!");
+      // spinner(mySpinner, "SPINERROR", "could not connect- try again!");
       needToUpdateCreds = true;
       ({ NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials(true));
     }
@@ -65,7 +66,7 @@ async function main() {
     //   console.log(command[0], command[1], command[2])
     // );
     // logTable(requestedCommands);
-    console.table(requestedCommands);
+    // console.table(requestedCommands);
   }
 }
 
