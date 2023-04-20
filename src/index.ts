@@ -48,7 +48,7 @@ async function main() {
 
   // LIST COMMAND
   spinner(mySpinner, "SPINSTART", "querying database");
-  let requestedCommands: Array<string[]> = [];
+  let requestedCommands: { App: string; Command: string; Name: string }[];
   const { data, error } = await queryDatabase(
     notion,
     NOTION_DATABASE_ID,
@@ -64,7 +64,8 @@ async function main() {
     // requestedCommands.forEach((command) =>
     //   console.log(command[0], command[1], command[2])
     // );
-    logTable(requestedCommands);
+    // logTable(requestedCommands);
+    console.table(requestedCommands);
   }
 }
 

@@ -70,13 +70,14 @@ function extractPageProperties(page: PageObjectResponse) {
   const richTextProperty = page.properties.Name as RichTextProperty;
   const selectProperty = page.properties.App as SelectProperty;
 
-  const title = titleProperty?.title?.[0]?.plain_text ?? "";
+  const command = titleProperty?.title?.[0]?.plain_text ?? "";
   const name = richTextProperty?.rich_text?.[0]?.plain_text ?? "";
   const appName = selectProperty?.select?.name ?? "";
   const appColor: NotionColor = selectProperty?.select?.color ?? "default";
   // const coloredAppName = colorApp(appName, appColor);
 
-  return [appName, title, name];
+  // return [appName, command, name];
+  return { App: appName, Command: command, Name: name };
 }
 
 function colorApp(app: string, color: NotionColor) {
