@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import inquirer, { QuestionCollection } from "inquirer";
 import { Spinner } from "nanospinner";
-import { EMOJI_RX } from "./emojiRegEx.js";
 
 const TABLE_DIM = { colWidth: [16, 16, 48] };
 
@@ -133,7 +132,6 @@ export function logTable(table: string[][]) {
     console.log("No data to display");
   }
 
-  const regex = new RegExp(EMOJI_RX, "g"); // Regex to match emojis
   // Loop through each row
   for (let row of table) {
     let formattedRow = "";
@@ -142,15 +140,8 @@ export function logTable(table: string[][]) {
     for (let i = 0; i < row.length; i++) {
       const cell = row[i];
       const targetWidth = TABLE_DIM.colWidth[i];
-      const emojiCount = countPatternOccurrences(regex, cell);
-      // console.log("targetWidth:", targetWidth);
-      // console.log("cell", cell.length);
-      // console.log("emoji", emojiCount);
-
       const paddingLength =
-        targetWidth - cell.length - emojiCount >= 0
-          ? targetWidth - cell.length - emojiCount
-          : 0;
+        targetWidth - cell.length > 0 ? targetWidth - cell.length : 0;
       let padding = " ".repeat(paddingLength);
 
       if (cell.length >= targetWidth) {
@@ -161,11 +152,6 @@ export function logTable(table: string[][]) {
     }
     console.log(formattedRow);
   }
-}
-
-function countPatternOccurrences(regex: RegExp, string: string) {
-  const matches = string.match(regex);
-  return matches ? matches.length : 0;
 }
 
 export function spinner(mySpinner: Spinner, status: SpinType, message: string) {
