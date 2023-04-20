@@ -74,9 +74,9 @@ function extractPageProperties(page: PageObjectResponse) {
   const name = richTextProperty?.rich_text?.[0]?.plain_text ?? "";
   const appName = selectProperty?.select?.name ?? "";
   const appColor: NotionColor = selectProperty?.select?.color ?? "default";
-  const coloredAppName = colorApp(appName, appColor);
+  // const coloredAppName = colorApp(appName, appColor);
 
-  return [coloredAppName, title, name];
+  return [appName, title, name];
 }
 
 function colorApp(app: string, color: NotionColor) {

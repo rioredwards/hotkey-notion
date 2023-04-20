@@ -1,6 +1,9 @@
 import chalk from "chalk";
 import inquirer, { QuestionCollection } from "inquirer";
 import { Spinner } from "nanospinner";
+import { EMOJI_RX } from "./emojiRegEx.js";
+
+const TABLE_DIM = { colWidth: [16, 16, 48] };
 
 export type LogType = "INFO" | "WARN" | "ERROR" | "SUCCESS" | "PROMPT";
 export type SpinType = "SPINSTART" | "SPINERROR" | "SPINSUCCESS";
@@ -31,6 +34,9 @@ type ChalkColor =
   | "magentaBright"
   | "red"
   | "gray";
+
+const regexEmoji =
+  /[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\u{1F9B0}-\u{1F9B3}]/u;
 
 const statusIcons = {
   INFO: colorize("white", "➤"),
@@ -119,6 +125,47 @@ export function colorize(color: ChalkColor, message: string) {
 export function logger(status: LogType, message: string) {
   const icon = statusIcons[status];
   console.log(`${icon} ${message}`);
+}
+
+export function logTable(table: string[][]) {
+  // console.table(table);
+  if (table.length === 0 || table[0].length === 0) {
+    console.log("No data to display");
+  }
+
+  const regex = new RegExp(EMOJI_RX, "g"); // Regex to match emojis
+  // Loop through each row
+  for (let row of table) {
+    let formattedRow = "";
+
+    // Loop through each cell
+    for (let i = 0; i < row.length; i++) {
+      const cell = row[i];
+      const targetWidth = TABLE_DIM.colWidth[i];
+      const emojiCount = countPatternOccurrences(regex, cell);
+      // console.log("targetWidth:", targetWidth);
+      // console.log("cell", cell.length);
+      // console.log("emoji", emojiCount);
+
+      const paddingLength =
+        targetWidth - cell.length - emojiCount >= 0
+          ? targetWidth - cell.length - emojiCount
+          : 0;
+      let padding = " ".repeat(paddingLength);
+
+      if (cell.length >= targetWidth) {
+        formattedRow += cell.substring(0, targetWidth - 3) + "...";
+      } else {
+        formattedRow += `${cell}${padding}`;
+      }
+    }
+    console.log(formattedRow);
+  }
+}
+
+function countPatternOccurrences(regex: RegExp, string: string) {
+  const matches = string.match(regex);
+  return matches ? matches.length : 0;
 }
 
 export function spinner(mySpinner: Spinner, status: SpinType, message: string) {
