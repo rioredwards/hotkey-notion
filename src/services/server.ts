@@ -14,6 +14,7 @@ export async function connectToDatabase(notion: Client, databaseId: string) {
     });
     return database;
   } catch (err) {
+    console.warn("");
     return null;
   }
 }

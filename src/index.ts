@@ -4,7 +4,7 @@ import { connectToDatabase, createClient } from "./services/server.js";
 import { getNotionCredentials, saveCreds } from "./commands/setup.js";
 import { createSpinner } from "nanospinner";
 import { GetDatabaseResponse } from "@notionhq/client/build/src/api-endpoints.js";
-import { spinner } from "./logger.js";
+import { logTable, spinner } from "./logger.js";
 import { Client } from "@notionhq/client";
 import { addToDatabase, getUserDatabaseEntry } from "./commands/add.js";
 import { queryDatabase } from "./commands/list.js";
@@ -12,7 +12,7 @@ import { queryDatabase } from "./commands/list.js";
 dotenv.config();
 
 async function main() {
-  let { NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials();
+  let { NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials(false);
   let notion: Client | null = null;
   let database: GetDatabaseResponse | null = null;
   const mySpinner = createSpinner();
@@ -29,7 +29,7 @@ async function main() {
     } else {
       spinner(mySpinner, "SPINERROR", "could not connect- try again!");
       needToUpdateCreds = true;
-      ({ NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials());
+      ({ NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials(true));
     }
   }
 
@@ -47,7 +47,25 @@ async function main() {
   // await addToDatabase(notion, NOTION_DATABASE_ID, entry);
 
   // LIST COMMAND
-  await queryDatabase(notion, NOTION_DATABASE_ID, "Hello");
+  spinner(mySpinner, "SPINSTART", "querying database");
+  let requestedCommands: Array<string[]> = [];
+  const { data, error } = await queryDatabase(
+    notion,
+    NOTION_DATABASE_ID,
+    "Hello"
+  );
+
+  if (error) {
+    spinner(mySpinner, "SPINERROR", "error querying database");
+    return 1;
+  } else {
+    requestedCommands = data;
+    spinner(mySpinner, "SPINSUCCESS", "success! here are your commands");
+    // requestedCommands.forEach((command) =>
+    //   console.log(command[0], command[1], command[2])
+    // );
+    logTable(requestedCommands);
+  }
 }
 
 main()
