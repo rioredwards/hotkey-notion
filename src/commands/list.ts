@@ -76,8 +76,8 @@ function extractPageProperties(page: PageObjectResponse) {
   const appColor: NotionColor = selectProperty.select?.color ?? "default";
   // const coloredAppName = colorApp(appName, appColor);
 
-  // return [appName, command, name];
-  return { App: appName, Command: command, Name: name };
+  return [appName, command, name];
+  // return { App: appName, Command: command, Name: name };
 }
 
 function colorApp(app: string, color: NotionColor) {

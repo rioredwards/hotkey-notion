@@ -8,6 +8,7 @@ import { logTable, spinner } from "./logger.js";
 import { Client } from "@notionhq/client";
 import { addToDatabase, getUserDatabaseEntry } from "./commands/add.js";
 import { queryDatabase } from "./commands/list.js";
+import { drawTable } from "./table.js";
 
 dotenv.config();
 // const sleep = (ms = 1000) => new Promise((r) => setTimeout(r, ms));
@@ -49,7 +50,7 @@ async function main() {
 
   // LIST COMMAND
   spinner(mySpinner, "SPINSTART", "querying database");
-  let requestedCommands: { App: string; Command: string; Name: string }[];
+  let requestedCommands: string[][];
   const { data, error } = await queryDatabase(
     notion,
     NOTION_DATABASE_ID,
@@ -67,7 +68,8 @@ async function main() {
     //   console.log(command[0], command[1], command[2])
     // );
     // logTable(requestedCommands);
-    console.table(requestedCommands);
+    drawTable(requestedCommands);
+    // console.table(requestedCommands);
   }
 }
 
