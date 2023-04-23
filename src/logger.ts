@@ -123,34 +123,6 @@ export function logger(status: LogType, message: string) {
   console.log(`${icon} ${message}`);
 }
 
-export function logTable(table: string[][]) {
-  // console.table(table);
-  if (table.length === 0 || table[0].length === 0) {
-    console.log("No data to display");
-  }
-
-  // Loop through each row
-  for (let row of table) {
-    let formattedRow = "";
-
-    // Loop through each cell
-    for (let i = 0; i < row.length; i++) {
-      const cell = row[i];
-      const targetWidth = TABLE_DIM.colWidth[i];
-      const paddingLength =
-        targetWidth - cell.length > 0 ? targetWidth - cell.length : 0;
-      let padding = " ".repeat(paddingLength);
-
-      if (cell.length >= targetWidth) {
-        formattedRow += cell.substring(0, targetWidth - 3) + "...";
-      } else {
-        formattedRow += `${cell}${padding}`;
-      }
-    }
-    console.log(formattedRow);
-  }
-}
-
 export function spinner(mySpinner: Spinner, status: SpinType, message: string) {
   mySpinner.update({
     stream: process.stdout,

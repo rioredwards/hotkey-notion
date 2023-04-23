@@ -4,7 +4,7 @@ import { connectToDatabase, createClient } from "./services/server.js";
 import { getNotionCredentials, saveCreds } from "./commands/setup.js";
 import { createSpinner } from "nanospinner";
 import { GetDatabaseResponse } from "@notionhq/client/build/src/api-endpoints.js";
-import { logTable, spinner } from "./logger.js";
+import { spinner } from "./logger.js";
 import { Client } from "@notionhq/client";
 import { addToDatabase, getUserDatabaseEntry } from "./commands/add.js";
 import { queryDatabase } from "./commands/list.js";
