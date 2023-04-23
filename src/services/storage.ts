@@ -19,7 +19,7 @@ export async function saveCreds(
   fs.writeFileSync(envFilePath, envFileContent);
 }
 
-export async function saveHotkeyData(data: string[][]) {
+export async function saveHotkeysToCache(data: string[][]) {
   let hotkeyFilePath: string;
   const dir = path.dirname(process.argv[1]);
   const hotkeyFileContent = JSON.stringify(data);
@@ -31,4 +31,23 @@ export async function saveHotkeyData(data: string[][]) {
   }
 
   fs.writeFileSync(hotkeyFilePath, hotkeyFileContent);
+}
+
+export async function getHotkeysFromCache() {
+  let hotkeyFilePath: string;
+  const dir = path.dirname(process.argv[1]);
+
+  if (process.env.NODE_ENV === "development") {
+    hotkeyFilePath = path.join(dir, "../", "hotkeys.json");
+  } else {
+    hotkeyFilePath = path.join(dir, "hotkeys.json");
+  }
+  try {
+    const hotkeyFileContent = fs.readFileSync(hotkeyFilePath, "utf-8");
+    const data = JSON.parse(hotkeyFileContent) as string[][];
+    return { data, err: null };
+  } catch (err) {
+    if (err instanceof Error) return { data: null, err: err };
+    return { data: null, err: new Error("Unknown Error Occurred") };
+  }
 }

@@ -9,7 +9,16 @@ import { Client } from "@notionhq/client";
 import { addToDatabase, getUserDatabaseEntry } from "./commands/add.js";
 import { queryDatabase } from "./commands/list.js";
 import { drawTable } from "./table.js";
-import { saveCreds, saveHotkeyData } from "./services/storage.js";
+import {
+  getHotkeysFromCache,
+  saveCreds,
+  saveHotkeysToCache,
+} from "./services/storage.js";
+
+interface hotkeyResponseObj {
+  data: string[][] | null;
+  err: Error | null;
+}
 
 dotenv.config();
 // const sleep = (ms = 1000) => new Promise((r) => setTimeout(r, ms));
@@ -53,21 +62,22 @@ async function main() {
   // LIST COMMAND
   spinner(mySpinner, "SPINSTART", "querying database");
   let requestedCommands: string[][];
-  const { data, error } = await queryDatabase(
-    notion,
-    NOTION_DATABASE_ID,
-    "Hello"
-  );
+  // const { data, err } = await queryDatabase(
+  //   notion,
+  //   NOTION_DATABASE_ID,
+  //   "Hello"
+  // );
+  const { data, err } = await getHotkeysFromCache();
 
-  if (error) {
-    console.log(error);
+  if (err) {
+    console.log(err);
     spinner(mySpinner, "SPINERROR", "error querying database");
     return 1;
   } else {
     requestedCommands = data;
     spinner(mySpinner, "SPINSUCCESS", "success! here are your commands");
     spinner(mySpinner, "SPINSTART", "saving hotkeys to cache...");
-    saveHotkeyData(requestedCommands);
+    saveHotkeysToCache(requestedCommands);
     drawTable(requestedCommands);
   }
 }

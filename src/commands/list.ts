@@ -59,9 +59,10 @@ export async function queryDatabase(
     }) as PageObjectResponse[];
 
     const parsedPages = fullPages.map((page) => extractPageProperties(page));
-    return { data: parsedPages, error: null };
-  } catch (error) {
-    return { data: null, error: Error };
+    return { data: parsedPages, err: null };
+  } catch (err) {
+    if (err instanceof Error) return { data: null, err: err };
+    return { data: null, err: new Error("Unknown Error Occurred") };
   }
 }
 
