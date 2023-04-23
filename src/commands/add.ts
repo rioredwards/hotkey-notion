@@ -60,8 +60,9 @@ export async function addToDatabase(
       },
     });
     // console.log(response);
-    logger("SUCCESS", "success! entry added to database");
-  } catch (error) {
-    logger("ERROR", "error adding entry to database");
+    return { data: response, error: null };
+  } catch (err) {
+    if (err instanceof Error) return { data: null, err: err };
+    return { data: null, err: new Error("Unknown Error Occurred") };
   }
 }

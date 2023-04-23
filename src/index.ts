@@ -1,15 +1,27 @@
 #!/usr/bin/env node
 import dotenv from "dotenv";
 import { connectToDatabase, createClient } from "./services/server.js";
-import { getNotionCredentials, saveCreds } from "./commands/setup.js";
+import { getNotionCredentials } from "./commands/setup.js";
 import { createSpinner } from "nanospinner";
 import { GetDatabaseResponse } from "@notionhq/client/build/src/api-endpoints.js";
-import { logTable, spinner } from "./logger.js";
+import { logger, spinner } from "./logger.js";
 import { Client } from "@notionhq/client";
 import { addToDatabase, getUserDatabaseEntry } from "./commands/add.js";
 import { queryDatabase } from "./commands/list.js";
+import { drawTable } from "./table.js";
+import {
+  getHotkeysFromCache,
+  saveCreds,
+  saveHotkeysToCache,
+} from "./services/storage.js";
+
+interface hotkeyResponseObj {
+  data: string[][] | null;
+  err: Error | null;
+}
 
 dotenv.config();
+// const sleep = (ms = 1000) => new Promise((r) => setTimeout(r, ms));
 
 async function main() {
   let { NOTION_TOKEN, NOTION_DATABASE_ID } = await getNotionCredentials(false);
@@ -23,7 +35,7 @@ async function main() {
     spinner(mySpinner, "SPINSTART", "connecting to database");
     notion = createClient(NOTION_TOKEN);
     database = await connectToDatabase(notion, NOTION_DATABASE_ID);
-
+    // await sleep();
     if (database) {
       spinner(mySpinner, "SPINSUCCESS", "connected to database");
     } else {
@@ -35,6 +47,7 @@ async function main() {
 
   if (needToUpdateCreds) {
     saveCreds(NOTION_TOKEN!, NOTION_DATABASE_ID!);
+    logger("SUCCESS", "saving credentials...");
     needToUpdateCreds = false;
   }
 
@@ -48,23 +61,24 @@ async function main() {
 
   // LIST COMMAND
   spinner(mySpinner, "SPINSTART", "querying database");
-  let requestedCommands: Array<string[]> = [];
-  const { data, error } = await queryDatabase(
-    notion,
-    NOTION_DATABASE_ID,
-    "Hello"
-  );
+  let requestedCommands: string[][];
+  // const { data, err } = await queryDatabase(
+  //   notion,
+  //   NOTION_DATABASE_ID,
+  //   "Hello"
+  // );
+  const { data, err } = await getHotkeysFromCache();
 
-  if (error) {
+  if (err) {
+    console.log(err);
     spinner(mySpinner, "SPINERROR", "error querying database");
     return 1;
   } else {
     requestedCommands = data;
     spinner(mySpinner, "SPINSUCCESS", "success! here are your commands");
-    // requestedCommands.forEach((command) =>
-    //   console.log(command[0], command[1], command[2])
-    // );
-    logTable(requestedCommands);
+    spinner(mySpinner, "SPINSTART", "saving hotkeys to cache...");
+    saveHotkeysToCache(requestedCommands);
+    drawTable(requestedCommands);
   }
 }
 
