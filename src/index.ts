@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 import dotenv from "dotenv";
 import { connectToDatabase, createClient } from "./services/server.js";
-import { getNotionCredentials, saveCreds } from "./commands/setup.js";
+import { getNotionCredentials } from "./commands/setup.js";
 import { createSpinner } from "nanospinner";
 import { GetDatabaseResponse } from "@notionhq/client/build/src/api-endpoints.js";
-import { spinner } from "./logger.js";
+import { logger, spinner } from "./logger.js";
 import { Client } from "@notionhq/client";
 import { addToDatabase, getUserDatabaseEntry } from "./commands/add.js";
 import { queryDatabase } from "./commands/list.js";
 import { drawTable } from "./table.js";
+import { saveCreds, saveHotkeyData } from "./services/storage.js";
 
 dotenv.config();
 // const sleep = (ms = 1000) => new Promise((r) => setTimeout(r, ms));
@@ -37,6 +38,7 @@ async function main() {
 
   if (needToUpdateCreds) {
     saveCreds(NOTION_TOKEN!, NOTION_DATABASE_ID!);
+    logger("SUCCESS", "saving credentials...");
     needToUpdateCreds = false;
   }
 
@@ -64,6 +66,8 @@ async function main() {
   } else {
     requestedCommands = data;
     spinner(mySpinner, "SPINSUCCESS", "success! here are your commands");
+    spinner(mySpinner, "SPINSTART", "saving hotkeys to cache...");
+    saveHotkeyData(requestedCommands);
     drawTable(requestedCommands);
   }
 }
