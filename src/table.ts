@@ -83,6 +83,47 @@ function formatRow(row: string[], colWidths: number[], color: string) {
   return formattedRow;
 }
 
+function getFormattedColumnWidths(columnWidths: number[]) {
+  const formattedColWidths = columnWidths.map((_, i) => {
+    if (i === 0 || i === columnWidths.length - 1) {
+      return columnWidths[i] + padding.length * 2 + verticalLine.length;
+    } else {
+      return columnWidths[i] + padding.length * 2 + verticalLine.length * 2;
+    }
+  });
+  return formattedColWidths;
+}
+
+function createTopOrBottom(rowPos: "top" | "bottom", colWidths: number[]) {
+  if (rowPos === "top") {
+    const topRow =
+      topLeftCorner +
+      colWidths
+        .map((width, i) => {
+          if (i === 0) return horizontalLine.repeat(width - 1);
+          else if (i === colWidths.length - 1)
+            return horizontalLine.repeat(width - 1);
+          else return horizontalLine.repeat(width - 2);
+        })
+        .join(topSeperator) +
+      topRightCorner;
+    return topRow;
+  } else {
+    const bottomRow =
+      bottomLeftCorner +
+      colWidths
+        .map((width, i) => {
+          if (i === 0) return horizontalLine.repeat(width - 1);
+          else if (i === colWidths.length - 1)
+            return horizontalLine.repeat(width - 1);
+          else return horizontalLine.repeat(width - 2);
+        })
+        .join(bottomSeperator) +
+      bottomRightCorner;
+    return bottomRow;
+  }
+}
+
 export function drawTable(table: string[][]) {
   // Clear screen
   console.log("\n".repeat(25));
@@ -92,38 +133,9 @@ export function drawTable(table: string[][]) {
   const columns = getColumns(truncatedCells);
   const columnWidths = getColumnMaxWidths(columns);
   const formattedTable = formatTable(truncatedCells, columnWidths);
-
-  const formattedWidths = columnWidths.map((_, i) => {
-    if (i === 0 || i === columnWidths.length - 1) {
-      return columnWidths[i] + padding.length * 2 + verticalLine.length;
-    } else {
-      return columnWidths[i] + padding.length * 2 + verticalLine.length * 2;
-    }
-  });
-
-  const topRow =
-    topLeftCorner +
-    formattedWidths
-      .map((width, i) => {
-        if (i === 0) return horizontalLine.repeat(width - 1);
-        else if (i === formattedWidths.length - 1)
-          return horizontalLine.repeat(width - 1);
-        else return horizontalLine.repeat(width - 2);
-      })
-      .join(topSeperator) +
-    topRightCorner;
-
-  const bottomRow =
-    bottomLeftCorner +
-    formattedWidths
-      .map((width, i) => {
-        if (i === 0) return horizontalLine.repeat(width - 1);
-        else if (i === formattedWidths.length - 1)
-          return horizontalLine.repeat(width - 1);
-        else return horizontalLine.repeat(width - 2);
-      })
-      .join(bottomSeperator) +
-    bottomRightCorner;
+  const formattedWidths = getFormattedColumnWidths(columnWidths);
+  const topRow = createTopOrBottom("top", formattedWidths);
+  const bottomRow = createTopOrBottom("bottom", formattedWidths);
 
   // Print table
   console.log(topRow);

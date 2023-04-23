@@ -64,12 +64,7 @@ async function main() {
   } else {
     requestedCommands = data;
     spinner(mySpinner, "SPINSUCCESS", "success! here are your commands");
-    // requestedCommands.forEach((command) =>
-    //   console.log(command[0], command[1], command[2])
-    // );
-    // logTable(requestedCommands);
     drawTable(requestedCommands);
-    // console.table(requestedCommands);
   }
 }
 
